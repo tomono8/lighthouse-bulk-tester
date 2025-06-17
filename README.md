@@ -106,7 +106,7 @@ docker-compose up -d
 
 1. リポジトリをクローン：
 ```bash
-git clone https://github.com/yourusername/lighthouse-bulk-tester.git
+git clone https://github.com/tomono8/lighthouse-bulk-tester.git
 ```
 
 2. 依存関係をインストール：
