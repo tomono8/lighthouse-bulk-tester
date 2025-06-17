@@ -8,6 +8,8 @@ const uploadedFileName = document.getElementById('uploadedFileName');
 const uploadedUrlCount = document.getElementById('uploadedUrlCount');
 
 let urls = [];
+let socket;
+let socketId = null;
 
 function setupFileUpload() {
     dropZone.addEventListener('dragover', (e) => {
@@ -113,6 +115,21 @@ document.addEventListener('DOMContentLoaded', () => {
             showNotification('エクスポートする結果がありません。', 'error');
         }
     });
+
+    // Socket.io初期化
+    socket = io();
+    socket.on('connect', () => {
+        socketId = socket.id;
+    });
+    const statusLogArea = document.getElementById('statusLogArea');
+    if (socket && statusLogArea) {
+        socket.on('lh-status', msg => {
+            const div = document.createElement('div');
+            div.textContent = msg;
+            statusLogArea.appendChild(div);
+            statusLogArea.scrollTop = statusLogArea.scrollHeight;
+        });
+    }
 });
 
 async function startTest() {
@@ -123,20 +140,20 @@ async function startTest() {
     const results = [];
     const loadingOverlay = document.getElementById('loadingOverlay');
     const loadingStatus = document.getElementById('loadingStatus');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
+    const circleProgress = document.getElementById('circleProgress');
+    if (circleProgress) drawCircleProgress(0);
     loadingOverlay.classList.remove('hidden');
     startTestButton.disabled = true;
+    const statusLogArea = document.getElementById('statusLogArea');
+    if (statusLogArea) statusLogArea.innerHTML = '';
     for (let i = 0; i < urls.length; i++) {
         const url = urls[i];
         loadingStatus.textContent = `テスト中: ${i + 1}/${urls.length} - ${url}`;
-        progressBar.style.width = `${((i + 1) / urls.length) * 100}%`;
-        progressText.textContent = `${i + 1}/${urls.length}`;
         try {
             const response = await fetch('/api/test', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url, device })
+                body: JSON.stringify({ url, device, socketId })
             });
             const result = await response.json();
             results.push(result);
@@ -160,7 +177,10 @@ async function startTest() {
             });
         }
         await new Promise(resolve => setTimeout(resolve, delay));
+        // プログレスバー更新
+        if (circleProgress) drawCircleProgress((i + 1) / urls.length);
     }
+    if (circleProgress) drawCircleProgress(1);
     loadingOverlay.classList.add('hidden');
     startTestButton.disabled = false;
     console.log('テスト結果:', results);
@@ -287,7 +307,7 @@ function createVisualResultCard(result) {
                 }
                 const {num, unit} = parseMetric(val);
                 return `<div class='flex items-center gap-2'>
-                  <span class='font-bold w-14'>${metric}</span>
+                  <span class='font-bold w-20 text-xs'>${metric}</span>
                   <span class='text-lg font-mono' style='color:${metricColor(metric, num)}'>${num}</span>
                   <span class='text-xs'>${unit}</span>
                   <div class='flex-1 h-2 rounded bg-gray-200 ml-2'>
@@ -483,4 +503,34 @@ function updateSummaryStats(results) {
     if (resultsContainer) {
         resultsContainer.classList.remove('hidden');
     }
+}
+
+// 円形プログレスバー描画関数
+function drawCircleProgress(percent) {
+    const canvas = document.getElementById('circleProgress');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 34;
+    const lineWidth = 8;
+    // 背景円
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = '#e5e7eb';
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+    // 進捗円
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, -0.5 * Math.PI, (2 * percent - 0.5) * Math.PI);
+    ctx.strokeStyle = '#6366f1';
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+    // テキスト
+    ctx.font = 'bold 18px sans-serif';
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(Math.round(percent * 100) + '%', centerX, centerY);
 } 

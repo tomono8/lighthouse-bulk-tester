@@ -54,10 +54,34 @@ async function runLighthouse(url, device, socket) {
         }
     };
     
+    // console.logをインターセプトしてLH:statusログをキャッチ
+    const originalConsoleLog = console.log;
+    const originalConsoleInfo = console.info;
+    const logInterceptor = (...args) => {
+        const message = args.join(' ');
+        if (socket && message.includes('LH:')) {
+            socket.emit('lh-status', message);
+        }
+        originalConsoleLog(...args);
+    };
+    const infoInterceptor = (...args) => {
+        const message = args.join(' ');
+        if (socket && message.includes('LH:')) {
+            socket.emit('lh-status', message);
+        }
+        originalConsoleInfo(...args);
+    };
+    
     try {
+        if (socket) socket.emit('lh-status', `LH: Status テスト開始: ${url}`);
+        
+        // console.logをインターセプト
+        console.log = logInterceptor;
+        console.info = infoInterceptor;
+        
         const results = await lighthouse(url, options);
         const lhr = results.lhr;
-        
+        if (socket) socket.emit('lh-status', `LH: Status テスト完了: ${url}`);
         return {
             url,
             timestamp: new Date().toISOString(),
@@ -75,23 +99,32 @@ async function runLighthouse(url, device, socket) {
             status: 'success'
         };
     } catch (error) {
+        if (socket) socket.emit('lh-status', `LH: Status エラー: ${url} - ${error.message}`);
         console.error(`Error running Lighthouse for ${url}:`, error);
         throw error;
     } finally {
+        // console.logを元に戻す
+        console.log = originalConsoleLog;
+        console.info = originalConsoleInfo;
         await chrome.kill();
     }
 }
 
 // APIエンドポイント
 app.post('/api/test', async (req, res) => {
-    const { url, device } = req.body;
+    const { url, device, socketId } = req.body;
     
     if (!url) {
         return res.status(400).json({ error: 'URL is required' });
     }
     
+    // socketIdがあれば該当クライアントのsocketを取得
+    let socket = null;
+    if (socketId && io.sockets.sockets.get(socketId)) {
+        socket = io.sockets.sockets.get(socketId);
+    }
     try {
-        const result = await runLighthouse(url, device || 'desktop');
+        const result = await runLighthouse(url, device || 'desktop', socket);
         res.json(result);
     } catch (error) {
         res.status(500).json({
