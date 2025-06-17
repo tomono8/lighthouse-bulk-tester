@@ -39,7 +39,7 @@
 
             <div class="mb-6">
                 <h2 class="text-xl font-semibold mb-4">設定</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">デバイス</label>
                         <div class="flex space-x-4">
@@ -52,6 +52,20 @@
                                 <span class="ml-2">モバイル</span>
                             </label>
                         </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">測定モード</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="measureMode" value="standard" class="form-radio text-indigo-600" checked>
+                                <span class="ml-2 text-sm">標準</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="measureMode" value="strict" class="form-radio text-indigo-600">
+                                <span class="ml-2 text-sm">厳しい条件</span>
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-1">標準: PageSpeed Insights相当<br/>厳しい条件: 実際の低速環境</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">テスト間隔 (ミリ秒)</label>

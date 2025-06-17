@@ -34,10 +34,40 @@ io.on('connection', (socket) => {
 });
 
 // Lighthouseテストの実行
-async function runLighthouse(url, device, socket) {
+async function runLighthouse(url, device, socket, strictMode = false) {
     const chrome = await chromeLauncher.launch({
-        chromeFlags: ['--headless', '--disable-gpu', '--no-sandbox']
+        chromeFlags: [
+            '--headless',
+            '--disable-gpu', 
+            '--no-sandbox',
+            '--disable-dev-shm-usage',        // メモリ使用量最適化
+            '--disable-setuid-sandbox',       // セキュリティ最適化
+            '--no-first-run',                 // 初回実行スキップ
+            '--disable-default-apps',         // デフォルトアプリ無効
+            '--disable-background-timer-throttling', // バックグラウンド最適化
+            '--disable-renderer-backgrounding',
+            '--disable-backgrounding-occluded-windows'
+        ]
     });
+    
+    // strictMode時はより厳しい条件、falseの場合はPageSpeed Insights相当
+    const throttlingConfig = strictMode ? {
+        // より厳しい条件（実際の低速環境）
+        rttMs: device === 'mobile' ? 300 : 40,
+        throughputKbps: device === 'mobile' ? 819.2 : 5120,  // より遅い回線
+        cpuSlowdownMultiplier: device === 'mobile' ? 6 : 2,   // より重いCPU制限
+        requestLatencyMs: device === 'mobile' ? 300 : 0,
+        downloadThroughputKbps: device === 'mobile' ? 819.2 : 5120,
+        uploadThroughputKbps: device === 'mobile' ? 337.5 : 5120
+    } : {
+        // PageSpeed Insights相当（標準）
+        rttMs: device === 'mobile' ? 150 : 40,
+        throughputKbps: device === 'mobile' ? 1638.4 : 10240,
+        cpuSlowdownMultiplier: device === 'mobile' ? 4 : 1,
+        requestLatencyMs: device === 'mobile' ? 150 : 0,
+        downloadThroughputKbps: device === 'mobile' ? 1638.4 : 10240,
+        uploadThroughputKbps: device === 'mobile' ? 675 : 10240
+    };
     
     const options = {
         logLevel: 'info',
@@ -45,13 +75,17 @@ async function runLighthouse(url, device, socket) {
         onlyCategories: ['performance', 'accessibility', 'best-practices', 'seo'],
         port: chrome.port,
         formFactor: device === 'mobile' ? 'mobile' : 'desktop',
+        throttling: throttlingConfig,
         screenEmulation: {
             mobile: device === 'mobile',
             width: device === 'mobile' ? 375 : 1350,
             height: device === 'mobile' ? 667 : 940,
             deviceScaleFactor: device === 'mobile' ? 2 : 1,
             disabled: false
-        }
+        },
+        emulatedFormFactor: device === 'mobile' ? 'mobile' : 'desktop',
+        internalDisableDeviceScreenEmulation: false,
+        channel: 'devtools'  // PageSpeed Insightsと同じチャンネル
     };
     
     // console.logをインターセプトしてLH:statusログをキャッチ
@@ -112,7 +146,7 @@ async function runLighthouse(url, device, socket) {
 
 // APIエンドポイント
 app.post('/api/test', async (req, res) => {
-    const { url, device, socketId } = req.body;
+    const { url, device, socketId, strictMode = false } = req.body;
     
     if (!url) {
         return res.status(400).json({ error: 'URL is required' });
@@ -124,7 +158,7 @@ app.post('/api/test', async (req, res) => {
         socket = io.sockets.sockets.get(socketId);
     }
     try {
-        const result = await runLighthouse(url, device || 'desktop', socket);
+        const result = await runLighthouse(url, device || 'desktop', socket, strictMode);
         res.json(result);
     } catch (error) {
         res.status(500).json({

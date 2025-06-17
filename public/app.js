@@ -136,6 +136,8 @@ async function startTest() {
     console.log('テスト開始処理を実行します');
     showNotification('テストを開始します...', 'info');
     const device = document.querySelector('input[name="device"]:checked').value;
+    const measureMode = document.querySelector('input[name="measureMode"]:checked').value;
+    const strictMode = measureMode === 'strict';
     const delay = parseInt(document.getElementById('delay').value) || 1000;
     const results = [];
     const loadingOverlay = document.getElementById('loadingOverlay');
@@ -153,7 +155,7 @@ async function startTest() {
             const response = await fetch('/api/test', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url, device, socketId })
+                body: JSON.stringify({ url, device, socketId, strictMode })
             });
             const result = await response.json();
             results.push(result);
@@ -534,4 +536,6 @@ function drawCircleProgress(percent) {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(Math.round(percent * 100) + '%', centerX, centerY);
-} 
+}
+
+ 
