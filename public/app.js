@@ -293,24 +293,25 @@ function createVisualResultCard(result) {
           </div>
         </div>
         <div class="flex-1 min-w-[260px]">
-          <div class="grid grid-cols-2 gap-2 text-sm">
+          <div class="grid grid-cols-1 gap-2 text-sm">
             ${['LCP','INP','CLS','FCP','TTFB','TBT','SpeedIndex'].map(metric => {
                 let val = '';
+                let displayName = metric;
                 switch(metric) {
-                  case 'LCP': val = result.largestContentfulPaint; break;
-                  case 'INP': val = result.interactionToNextPaint; break;
-                  case 'CLS': val = result.cumulativeLayoutShift; break;
-                  case 'FCP': val = result.firstContentfulPaint; break;
-                  case 'TTFB': val = result.timeToFirstByte; break;
-                  case 'TBT': val = result.totalBlockingTime; break;
-                  case 'SpeedIndex': val = result.speedIndex; break;
+                  case 'LCP': val = result.largestContentfulPaint; displayName = 'LCP'; break;
+                  case 'INP': val = result.interactionToNextPaint; displayName = 'INP'; break;
+                  case 'CLS': val = result.cumulativeLayoutShift; displayName = 'CLS'; break;
+                  case 'FCP': val = result.firstContentfulPaint; displayName = 'FCP'; break;
+                  case 'TTFB': val = result.timeToFirstByte; displayName = 'TTFB'; break;
+                  case 'TBT': val = result.totalBlockingTime; displayName = 'TBT'; break;
+                  case 'SpeedIndex': val = result.speedIndex; displayName = 'SI'; break;
                 }
                 const {num, unit} = parseMetric(val);
-                return `<div class='flex items-center gap-2'>
-                  <span class='font-bold w-20 text-xs'>${metric}</span>
-                  <span class='text-lg font-mono' style='color:${metricColor(metric, num)}'>${num}</span>
-                  <span class='text-xs'>${unit}</span>
-                  <div class='flex-1 h-2 rounded bg-gray-200 ml-2'>
+                return `<div class='flex items-center gap-1 mb-1'>
+                  <span class='font-bold text-xs min-w-0 flex-shrink-0' style='min-width: 3rem;' title='${metric}'>${displayName}</span>
+                  <span class='text-sm font-mono flex-shrink-0' style='color:${metricColor(metric, num)}'>${num}</span>
+                  <span class='text-xs flex-shrink-0'>${unit}</span>
+                  <div class='flex-1 h-2 rounded bg-gray-200 min-w-0 ml-1'>
                     <div style='width:${num !== 'N/A' ? Math.min((metric==='CLS'?num*100:num*20),100):0}%;background:${metricColor(metric, num)}' class='h-2 rounded'></div>
                   </div>
                 </div>`;
