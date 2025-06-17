@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lighthouse Bulk Tester</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <header class="text-center mb-12">
+            <h1 class="text-4xl font-bold text-indigo-600 mb-2">
+                <i class="fas fa-lighthouse mr-2"></i>Lighthouse Bulk Tester
+            </h1>
+            <p class="text-gray-600">複数のウェブサイトのパフォーマンスを一括測定</p>
+        </header>
+
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-4">URLリストのアップロード</h2>
+                <form id="uploadForm" class="space-y-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-1">
+                            <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-indigo-500 transition-colors">
+                                <i class="fas fa-file-upload text-3xl text-gray-400 mb-2"></i>
+                                <p class="text-gray-600">ファイルをドラッグ＆ドロップまたはクリックしてアップロード</p>
+                                <p class="text-sm text-gray-500 mt-1">.txt または .csv ファイル</p>
+                            </div>
+                            <input type="file" id="fileInput" accept=".txt,.csv">
+                        </div>
+                        <button type="button" id="startTest" class="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                            <i class="fas fa-play mr-2"></i>テスト開始
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-4">設定</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">デバイス</label>
+                        <div class="flex space-x-4">
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="device" value="desktop" class="form-radio text-indigo-600" checked>
+                                <span class="ml-2">デスクトップ</span>
+                            </label>
+                            <label class="inline-flex items-center">
+                                <input type="radio" name="device" value="mobile" class="form-radio text-indigo-600">
+                                <span class="ml-2">モバイル</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">テスト間隔 (ミリ秒)</label>
+                        <input type="number" id="delay" value="1000" min="0" step="100" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- アップロード情報表示エリア -->
+        <div id="uploadInfo" class="hidden mb-4">
+            <div class="bg-white rounded-lg shadow p-4">
+                <div class="flex items-center space-x-2">
+                    <span id="uploadStatusBadge" class="inline-block px-2 py-1 rounded text-xs font-bold"></span>
+                    <span id="uploadedFileName" class="text-gray-700"></span>
+                    <span id="uploadedUrlCount" class="text-gray-500"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 結果表示エリア -->
+        <div id="resultsContainer" class="hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold">テスト結果</h2>
+                    <div class="flex space-x-2">
+                        <button id="exportCsv" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                            <i class="fas fa-file-csv mr-2"></i>CSVエクスポート
+                        </button>
+                        <button id="exportJson" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-file-code mr-2"></i>JSONエクスポート
+                        </button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Performance</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Accessibility</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Best Practices</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SEO</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">FCP</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LCP</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CLS</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsTable" class="bg-white divide-y divide-gray-200">
+                            <!-- 結果がここに動的に追加されます -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-xl font-semibold mb-4">サマリー</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="bg-indigo-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-medium text-indigo-800">総URL数</h3>
+                        <p id="totalUrls" class="text-2xl font-bold text-indigo-600">0</p>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-medium text-green-800">成功</h3>
+                        <p id="successCount" class="text-2xl font-bold text-green-600">0</p>
+                    </div>
+                    <div class="bg-red-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-medium text-red-800">失敗</h3>
+                        <p id="failCount" class="text-2xl font-bold text-red-600">0</p>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <h3 class="text-sm font-medium text-blue-800">平均パフォーマンス</h3>
+                        <p id="avgPerformance" class="text-2xl font-bold text-blue-600">0%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ローディングオーバーレイ -->
+        <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+            <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+                <h3 class="text-xl font-semibold mb-2">テスト実行中...</h3>
+                <p id="loadingStatus" class="text-gray-600">準備中...</p>
+                <div class="mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div id="progressBar" class="bg-indigo-600 h-2.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p id="progressText" class="text-sm text-gray-600 mt-1">0/0</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 結果のビジュアル表示エリア -->
+        <div id="visualResultsContainer" class="hidden mt-8">
+            <!-- サマリー -->
+            <div class="flex flex-wrap gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6 flex-1 min-w-[320px]">
+                    <div class="text-lg font-bold mb-4">スコア分布</div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-green-600" id="highScoreCount">0</div>
+                            <div class="text-sm text-gray-600">高スコア (90+)</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-yellow-600" id="mediumScoreCount">0</div>
+                            <div class="text-sm text-gray-600">中スコア (70-89)</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-orange-600" id="lowScoreCount">0</div>
+                            <div class="text-sm text-gray-600">低スコア (50-69)</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-red-600" id="veryLowScoreCount">0</div>
+                            <div class="text-sm text-gray-600">要改善 (<50)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6 flex-1 min-w-[260px]">
+                    <div class="text-lg font-bold mb-4">カテゴリ別問題数</div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">パフォーマンス問題</span>
+                            <span class="text-lg font-bold text-red-600" id="performanceIssues">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">アクセシビリティ問題</span>
+                            <span class="text-lg font-bold text-red-600" id="accessibilityIssues">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">ベストプラクティス問題</span>
+                            <span class="text-lg font-bold text-red-600" id="bestPracticesIssues">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm">SEO問題</span>
+                            <span class="text-lg font-bold text-red-600" id="seoIssues">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 各URLごとの詳細 -->
+            <div id="visualResultsList" class="space-y-8"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html> 

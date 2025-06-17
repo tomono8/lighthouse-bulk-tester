@@ -1,0 +1,35 @@
+# サンプルURLリスト
+# このファイルをコピーして、urls.txtとして保存してください
+
+# 人気のウェブサイト
+https://www.google.com
+https://www.github.com
+https://www.stackoverflow.com
+https://www.wikipedia.org
+
+# ニュースサイト
+https://www.bbc.com
+https://www.cnn.com
+
+# 技術系サイト
+https://developer.mozilla.org
+https://nodejs.org
+
+# Eコマース
+https://www.amazon.com
+https://www.ebay.com
+
+# ソーシャルメディア
+https://www.twitter.com
+https://www.linkedin.com
+
+# 日本のサイト
+https://www.yahoo.co.jp
+https://www.rakuten.co.jp
+https://www.nikkei.com
+
+# 注意：
+# - #で始まる行はコメントとして無視されます
+# - //で始まる行もコメントとして無視されます  
+# - 空行は無視されます
+# - URLは http:// または https:// で始める必要があります 

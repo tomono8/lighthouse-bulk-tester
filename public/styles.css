@@ -1,0 +1,471 @@
+/* カスタムスタイル */
+.form-radio {
+    @apply h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300;
+}
+
+/* スコアバーのスタイル */
+.score-bar {
+    @apply h-2 rounded-full overflow-hidden;
+}
+
+.score-bar-fill {
+    @apply h-full transition-all duration-500;
+}
+
+/* スコアに応じた色 */
+.score-excellent {
+    @apply bg-green-500;
+}
+
+.score-good {
+    @apply bg-green-400;
+}
+
+.score-average {
+    @apply bg-yellow-500;
+}
+
+.score-poor {
+    @apply bg-red-500;
+}
+
+/* ドロップゾーンのスタイル */
+#dropZone.drag-over {
+    @apply border-indigo-500 bg-indigo-50;
+}
+
+/* テーブルの行ホバー効果 */
+#resultsTable tr:hover {
+    @apply bg-gray-50;
+}
+
+/* アニメーション */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* スコア表示のスタイル */
+.score-cell {
+    @apply flex items-center space-x-2;
+}
+
+.score-value {
+    @apply font-medium;
+}
+
+/* レスポンシブ調整 */
+@media (max-width: 768px) {
+    .container {
+        @apply px-2;
+    }
+    
+    .grid-cols-4 {
+        @apply grid-cols-2;
+    }
+}
+
+/* カスタムスクロールバー */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500;
+}
+
+/* ツールチップ */
+.tooltip {
+    @apply relative inline-block;
+}
+
+.tooltip .tooltip-text {
+    @apply invisible absolute z-10 p-2 text-sm text-white bg-gray-900 rounded-lg opacity-0 transition-opacity duration-300;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.tooltip:hover .tooltip-text {
+    @apply visible opacity-100;
+}
+
+/* ボタンのホバーエフェクト */
+button {
+    @apply transform transition-transform duration-200;
+}
+
+button:hover:not(:disabled) {
+    @apply scale-105;
+}
+
+button:active:not(:disabled) {
+    @apply scale-95;
+}
+
+/* ローディングオーバーレイのアニメーション */
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.6; }
+}
+
+#loadingOverlay {
+    animation: pulse 2s infinite;
+}
+
+/* テーブルのセルスタイル */
+td {
+    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+}
+
+th {
+    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+}
+
+/* URLの表示スタイル */
+.url-cell {
+    @apply max-w-xs truncate;
+}
+
+.url-cell:hover {
+    @apply overflow-visible;
+}
+
+/* ステータスバッジ */
+.status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.status-success {
+    @apply bg-green-100 text-green-800;
+}
+
+.status-error {
+    @apply bg-red-100 text-red-800;
+}
+
+/* 数値入力フィールドのスタイル */
+input[type="number"] {
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500;
+}
+
+/* ラジオボタンのカスタムスタイル */
+input[type="radio"] {
+    @apply h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300;
+}
+
+/* エクスポートボタンのスタイル */
+.export-button {
+    @apply flex items-center justify-center;
+}
+
+.export-button i {
+    @apply mr-2;
+}
+
+/* サマリーカードのホバーエフェクト */
+.summary-card {
+    @apply transition-transform duration-200;
+}
+
+.summary-card:hover {
+    @apply transform scale-105;
+}
+
+/* プログレスバーのアニメーション */
+@keyframes progress {
+    0% { width: 0%; }
+    100% { width: var(--progress); }
+}
+
+#progressBar {
+    animation: progress 0.5s ease-out forwards;
+}
+
+/* モバイル対応の追加スタイル */
+@media (max-width: 640px) {
+    .container {
+        @apply px-2;
+    }
+    
+    .grid-cols-4 {
+        @apply grid-cols-1;
+    }
+    
+    .flex {
+        @apply flex-col;
+    }
+    
+    .space-x-4 {
+        @apply space-x-0 space-y-4;
+    }
+    
+    button {
+        @apply w-full;
+    }
+}
+
+/* 全体のスタイル */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* ドラッグ＆ドロップエリア */
+#dropZone {
+    transition: all 0.3s ease;
+}
+
+#dropZone.drag-over {
+    border-color: #6366f1;
+    background-color: #f5f3ff;
+}
+
+/* スコアバー */
+.score-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.score-bar {
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.score-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.score-bar-fill.excellent {
+    background-color: #10b981;
+}
+
+.score-bar-fill.good {
+    background-color: #f59e0b;
+}
+
+.score-bar-fill.poor {
+    background-color: #ef4444;
+}
+
+/* アニメーション */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 通知 */
+.notification {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: white;
+    font-weight: 500;
+    z-index: 50;
+    animation: slideIn 0.3s ease-out;
+}
+
+.notification.success {
+    background-color: #10b981;
+}
+
+.notification.error {
+    background-color: #ef4444;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* ローディングオーバーレイ */
+#loadingOverlay {
+    backdrop-filter: blur(4px);
+}
+
+/* 結果カード */
+#visualResultsContainer {
+    margin-top: 2rem;
+}
+
+#visualResultsList {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+/* チャート */
+canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* スコア表示 */
+.score-value {
+    font-weight: 600;
+    min-width: 2.5rem;
+    text-align: right;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .score-cell {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .score-bar {
+        width: 100%;
+    }
+}
+
+/* カスタムスクロールバー */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* ツールチップ */
+[title] {
+    position: relative;
+}
+
+[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.5rem;
+    background-color: #1f2937;
+    color: white;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    z-index: 10;
+}
+
+/* アップロード情報 */
+#uploadInfo {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    background-color: #f9fafb;
+}
+
+/* 結果テーブル */
+.results-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.results-table th {
+    position: sticky;
+    top: 0;
+    background-color: #f9fafb;
+    z-index: 10;
+}
+
+/* メトリクスカード */
+.metric-card {
+    background-color: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.metric-card:hover {
+    transform: translateY(-2px);
+}
+
+/* バッジ */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.badge-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* プログレスバー */
+.progress-bar {
+    height: 0.5rem;
+    background-color: #e5e7eb;
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background-color: #6366f1;
+    border-radius: 9999px;
+    transition: width 0.3s ease;
+} 
