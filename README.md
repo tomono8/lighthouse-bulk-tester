@@ -139,6 +139,23 @@ chmod +x node_modules/chrome-launcher/chrome-launcher.js
 PORT=3001 npm start
 ```
 
+### Windowsでの注意点・対処法
+
+- **PowerShellやコマンドプロンプトでのパス指定に注意**
+  - パスの区切りは `\`（バックスラッシュ）を使用してください。
+- **Chromeのパスが見つからない場合**
+  - Chromeが標準以外の場所にインストールされている場合、`chrome-launcher`のパス解決に失敗することがあります。
+  - その場合は `CHROME_PATH` 環境変数を設定してください。
+    例：
+    ```powershell
+    $env:CHROME_PATH="C:\Program Files\Google\Chrome\Application\chrome.exe"
+    npm start
+    ```
+- **ファイルの文字コード**
+  - URLリストファイルはUTF-8で保存してください。
+- **ファイアウォールやセキュリティソフト**
+  - ポート3000番の通信がブロックされていないか確認してください。 
+
 ## ライセンス
 
 MIT 
